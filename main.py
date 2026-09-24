@@ -27,15 +27,18 @@ st.markdown(
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap');
 
     :root {
-        --cream: #F8F4EF;
-        --warm-white: #FFFDFC;
-        --brown: #6F5548;
-        --dark-brown: #49382F;
-        --taupe: #B7A497;
-        --pink: #DDB9B5;
-        --light-pink: #F2DFDC;
-        --line: #E5DAD2;
-    }
+    --ivory: #F7F3ED;
+    --paper: #FFFDF9;
+    --espresso: #332A27;
+    --mocha: #65524A;
+    --mushroom: #A99A90;
+    --sage: #AAB7A5;
+    --dusty-rose: #CFA9A5;
+    --terracotta: #B97863;
+    --blush: #EAD8D2;
+    --sand: #D8C9BA;
+    --line: #E3D9CF;
+}
 
     .stApp {
         background-color: var(--cream);
