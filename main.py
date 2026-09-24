@@ -407,5 +407,5 @@ page = st.sidebar.radio(
 # =========================================================
 
 if page == "Dashboard":
-    st.title("Personal + Executive Assistant)
+    st.title("Personal + Executive Assistant")
             
