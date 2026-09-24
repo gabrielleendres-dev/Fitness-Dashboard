@@ -5,50 +5,169 @@ import pandas as pd
 import streamlit as st
 
 
-# -----------------------------
-# App configuration
-# -----------------------------
+# =========================================================
+# PAGE SETTINGS
+# =========================================================
+
 st.set_page_config(
-    page_title="Personal Executive Assistant",
-    page_icon="💪",
+    page_title="My Personal Assistant",
+    page_icon="🤍",
     layout="wide",
+    initial_sidebar_state="expanded",
 )
 
 
-# -----------------------------
-# Private passcode protection
-# -----------------------------
+# =========================================================
+# PILATES-INSPIRED DESIGN
+# =========================================================
+
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap');
+
+    :root {
+        --cream: #F8F4EF;
+        --warm-white: #FFFDFC;
+        --brown: #6F5548;
+        --dark-brown: #49382F;
+        --taupe: #B7A497;
+        --pink: #DDB9B5;
+        --light-pink: #F2DFDC;
+        --line: #E5DAD2;
+    }
+
+    .stApp {
+        background-color: var(--cream);
+        color: var(--dark-brown);
+        font-family: 'DM Sans', sans-serif;
+    }
+
+    h1, h2, h3 {
+        font-family: 'Playfair Display', serif !important;
+        color: var(--dark-brown) !important;
+    }
+
+    h1 {
+        font-size: 2.5rem !important;
+    }
+
+    [data-testid="stSidebar"] {
+        background-color: #EDE3DB;
+        border-right: 1px solid var(--line);
+    }
+
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] label {
+        color: var(--dark-brown) !important;
+    }
+
+    .stButton > button {
+        background-color: var(--brown);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 0.55rem 1rem;
+        font-weight: 600;
+    }
+
+    .stButton > button:hover {
+        background-color: var(--dark-brown);
+        color: white;
+    }
+
+    div[data-testid="stMetric"] {
+        background-color: var(--warm-white);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 18px;
+        box-shadow: 0 2px 8px rgba(90, 65, 50, 0.05);
+    }
+
+    div[data-testid="stMetricLabel"] {
+        color: var(--brown);
+    }
+
+    div[data-testid="stMetricValue"] {
+        color: var(--dark-brown);
+    }
+
+    [data-testid="stExpander"] {
+        background-color: var(--warm-white);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+    }
+
+    .stTextInput input,
+    .stTextArea textarea,
+    .stSelectbox div,
+    .stDateInput input,
+    .stNumberInput input {
+        border-radius: 8px;
+    }
+
+    .brand-note {
+        color: var(--brown);
+        font-size: 0.9rem;
+        letter-spacing: 0.03em;
+    }
+
+    .welcome-card {
+        background-color: var(--light-pink);
+        border-radius: 16px;
+        padding: 22px;
+        margin-bottom: 20px;
+        border: 1px solid var(--pink);
+    }
+
+    hr {
+        border-color: var(--line);
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+# =========================================================
+# PASSWORD PROTECTION
+# =========================================================
+
 def check_password():
-    """Require the password before displaying the private dashboard."""
+    """Show the password screen until the correct password is entered."""
 
     if st.session_state.get("authenticated", False):
         return True
 
-st.sidebar.title("💪 My Assistant")
-
-if st.sidebar.button("Lock Dashboard"):
-    st.session_state.authenticated = False
-    st.rerun()
-
-
-if st.sidebar.button("Lock Dashboard"):
-    st.session_state.authenticated = False
-    st.rerun()
-
-    st.subheader("Private dashboard")
+    st.markdown(
+        """
+        <div class="welcome-card">
+            <h2>Welcome to your private assistant</h2>
+            <p>Enter your passcode to continue.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     password = st.text_input(
-        "Enter your passcode",
+        "Passcode",
         type="password",
+        key="login_password",
     )
 
     if st.button("Unlock Dashboard", type="primary"):
-        correct_password = st.secrets.get("APP_PASSWORD")
+        try:
+            correct_password = st.secrets["APP_PASSWORD"]
+        except Exception:
+            correct_password = None
 
         if not correct_password:
             st.error(
-                "The app password has not been configured yet. "
-                "Add APP_PASSWORD in Streamlit Secrets."
+                "APP_PASSWORD has not been added yet. "
+                "Add it under your Streamlit app's Secrets settings."
             )
             return False
 
@@ -58,7 +177,7 @@ if st.sidebar.button("Lock Dashboard"):
         else:
             st.error("Incorrect passcode.")
 
-    st.caption("This dashboard is private. Do not share your passcode.")
+    st.caption("This dashboard is private.")
     return False
 
 
@@ -66,10 +185,10 @@ if not check_password():
     st.stop()
 
 
+# =========================================================
+# DATABASE
+# =========================================================
 
-# -----------------------------
-# Database setup
-# -----------------------------
 DB_NAME = "assistant_dashboard.db"
 
 
@@ -81,18 +200,22 @@ def initialize_database():
     connection = get_connection()
     cursor = connection.cursor()
 
-    cursor.execute("""
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
             category TEXT,
             due_date TEXT,
             priority TEXT,
+            status TEXT DEFAULT 'Not Started',
             completed INTEGER DEFAULT 0
         )
-    """)
+        """
+    )
 
-    cursor.execute("""
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS clients (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -101,9 +224,11 @@ def initialize_database():
             status TEXT,
             notes TEXT
         )
-    """)
+        """
+    )
 
-    cursor.execute("""
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS goals (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
@@ -111,9 +236,11 @@ def initialize_database():
             target_date TEXT,
             progress INTEGER DEFAULT 0
         )
-    """)
+        """
+    )
 
-    cursor.execute("""
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS events (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
@@ -122,7 +249,26 @@ def initialize_database():
             category TEXT,
             notes TEXT
         )
-    """)
+        """
+    )
+
+    # Upgrade older versions of the tasks table automatically.
+    cursor.execute("PRAGMA table_info(tasks)")
+    task_columns = [column[1] for column in cursor.fetchall()]
+
+    if "status" not in task_columns:
+        cursor.execute(
+            "ALTER TABLE tasks ADD COLUMN status TEXT DEFAULT 'Not Started'"
+        )
+
+    # Keep older completed tasks consistent with their status.
+    cursor.execute(
+        """
+        UPDATE tasks
+        SET status = 'Done'
+        WHERE completed = 1
+        """
+    )
 
     connection.commit()
     connection.close()
@@ -131,17 +277,26 @@ def initialize_database():
 initialize_database()
 
 
-# -----------------------------
-# Database helper functions
-# -----------------------------
-def add_task(title, category, due_date, priority):
+# =========================================================
+# DATABASE FUNCTIONS
+# =========================================================
+
+def add_task(title, category, due_date, priority, status):
     connection = get_connection()
     connection.execute(
         """
-        INSERT INTO tasks (title, category, due_date, priority)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO tasks
+        (title, category, due_date, priority, status, completed)
+        VALUES (?, ?, ?, ?, ?, ?)
         """,
-        (title, category, str(due_date), priority),
+        (
+            title,
+            category,
+            str(due_date),
+            priority,
+            status,
+            1 if status == "Done" else 0,
+        ),
     )
     connection.commit()
     connection.close()
@@ -150,7 +305,11 @@ def add_task(title, category, due_date, priority):
 def complete_task(task_id):
     connection = get_connection()
     connection.execute(
-        "UPDATE tasks SET completed = 1 WHERE id = ?",
+        """
+        UPDATE tasks
+        SET completed = 1, status = 'Done'
+        WHERE id = ?
+        """,
         (task_id,),
     )
     connection.commit()
@@ -187,7 +346,8 @@ def add_event(title, event_date, event_time, category, notes):
     connection = get_connection()
     connection.execute(
         """
-        INSERT INTO events (title, event_date, event_time, category, notes)
+        INSERT INTO events
+        (title, event_date, event_time, category, notes)
         VALUES (?, ?, ?, ?, ?)
         """,
         (title, str(event_date), event_time, category, notes),
@@ -197,16 +357,37 @@ def add_event(title, event_date, event_time, category, notes):
 
 
 def read_table(table_name):
+    allowed_tables = {"tasks", "clients", "goals", "events"}
+
+    if table_name not in allowed_tables:
+        raise ValueError("Invalid table name.")
+
     connection = get_connection()
-    data = pd.read_sql_query(f"SELECT * FROM {table_name}", connection)
+    data = pd.read_sql_query(
+        f"SELECT * FROM {table_name}",
+        connection,
+    )
     connection.close()
     return data
 
 
-# -----------------------------
-# Sidebar navigation
-# -----------------------------
-st.sidebar.title("💪 My Assistant")
+# =========================================================
+# SIDEBAR
+# =========================================================
+
+st.sidebar.markdown(
+    """
+    <h2 style="font-family: 'Playfair Display', serif;">
+    🤍 My Assistant
+    </h2>
+    <p class="brand-note">Personal • Focused • Organized</p>
+    """,
+    unsafe_allow_html=True,
+)
+
+if st.sidebar.button("Lock Dashboard"):
+    st.session_state.authenticated = False
+    st.rerun()
 
 page = st.sidebar.radio(
     "Navigate",
@@ -221,293 +402,9 @@ page = st.sidebar.radio(
 )
 
 
-# -----------------------------
-# Dashboard
-# -----------------------------
+# =========================================================
+# DASHBOARD
+# =========================================================
+
 if page == "Dashboard":
-    st.title("Personal + Executive Assistant")
-    st.caption(f"Today is {datetime.now().strftime('%A, %B %d, %Y')}")
-
-    tasks = read_table("tasks")
-    clients = read_table("clients")
-    goals = read_table("goals")
-    events = read_table("events")
-
-    active_tasks = 0
-    if not tasks.empty:
-        active_tasks = len(tasks[tasks["completed"] == 0])
-
-    active_clients = 0
-    if not clients.empty:
-        active_clients = len(clients[clients["status"] == "Active"])
-
-    upcoming_events = 0
-    if not events.empty:
-        upcoming_events = len(events)
-
-    average_goal_progress = 0
-    if not goals.empty:
-        average_goal_progress = round(goals["progress"].mean())
-
-    column1, column2, column3, column4 = st.columns(4)
-
-    column1.metric("Open Tasks", active_tasks)
-    column2.metric("Active Clients", active_clients)
-    column3.metric("Upcoming Events", upcoming_events)
-    column4.metric("Goal Progress", f"{average_goal_progress}%")
-
-    st.divider()
-
-    left, right = st.columns(2)
-
-    with left:
-        st.subheader("Open Tasks")
-        if tasks.empty or active_tasks == 0:
-            st.info("You have no open tasks.")
-        else:
-            open_tasks = tasks[tasks["completed"] == 0]
-            st.dataframe(
-                open_tasks[
-                    ["id", "title", "category", "due_date", "priority"]
-                ],
-                use_container_width=True,
-                hide_index=True,
-            )
-
-    with right:
-        st.subheader("Current Goals")
-        if goals.empty:
-            st.info("No goals added yet.")
-        else:
-            for _, goal in goals.iterrows():
-                st.write(f"**{goal['title']}** — {goal['progress']}%")
-                st.progress(int(goal["progress"]) / 100)
-
-
-# -----------------------------
-# Tasks
-# -----------------------------
-elif page == "Tasks":
-    st.title("Tasks")
-
-    with st.expander("➕ Add a task", expanded=True):
-        with st.form("add_task_form"):
-            title = st.text_input("Task name")
-            category = st.selectbox(
-                "Category",
-                ["Business", "Teaching", "Personal", "Health", "Admin"],
-            )
-            due_date = st.date_input("Due date", value=date.today())
-            priority = st.selectbox("Priority", ["High", "Medium", "Low"])
-            submitted = st.form_submit_button("Add Task")
-
-            if submitted:
-                if title.strip():
-                    add_task(title.strip(), category, due_date, priority)
-                    st.success("Task added.")
-                    st.rerun()
-                else:
-                    st.warning("Please enter a task name.")
-
-    tasks = read_table("tasks")
-
-    if tasks.empty:
-        st.info("No tasks have been added yet.")
-    else:
-        st.subheader("Your Tasks")
-
-        for _, task in tasks.iterrows():
-            if task["completed"] == 0:
-                column1, column2 = st.columns([5, 1])
-
-                with column1:
-                    st.write(
-                        f"**{task['title']}**  \n"
-                        f"{task['category']} · Due {task['due_date']} · "
-                        f"{task['priority']} priority"
-                    )
-
-                with column2:
-                    if st.button("Complete", key=f"complete_{task['id']}"):
-                        complete_task(int(task["id"]))
-                        st.rerun()
-
-        completed_tasks = tasks[tasks["completed"] == 1]
-        if not completed_tasks.empty:
-            with st.expander("Completed tasks"):
-                st.dataframe(
-                    completed_tasks,
-                    use_container_width=True,
-                    hide_index=True,
-                )
-
-
-# -----------------------------
-# Calendar
-# -----------------------------
-elif page == "Calendar":
-    st.title("Calendar")
-
-    with st.expander("➕ Add an event", expanded=True):
-        with st.form("add_event_form"):
-            title = st.text_input("Event title")
-            event_date = st.date_input("Event date", value=date.today())
-            event_time = st.text_input("Time", placeholder="Example: 9:00 AM")
-            category = st.selectbox(
-                "Category",
-                ["Client", "Class", "Business", "Personal"],
-            )
-            notes = st.text_area("Notes")
-            submitted = st.form_submit_button("Add Event")
-
-            if submitted:
-                if title.strip():
-                    add_event(
-                        title.strip(),
-                        event_date,
-                        event_time,
-                        category,
-                        notes,
-                    )
-                    st.success("Event added.")
-                    st.rerun()
-                else:
-                    st.warning("Please enter an event title.")
-
-    events = read_table("events")
-
-    if events.empty:
-        st.info("No events added yet.")
-    else:
-        st.dataframe(
-            events[
-                ["title", "event_date", "event_time", "category", "notes"]
-            ],
-            use_container_width=True,
-            hide_index=True,
-        )
-
-
-# -----------------------------
-# Clients
-# -----------------------------
-elif page == "Clients":
-    st.title("Clients")
-
-    with st.expander("➕ Add a client", expanded=True):
-        with st.form("add_client_form"):
-            name = st.text_input("Client name")
-            email = st.text_input("Email")
-            phone = st.text_input("Phone")
-            status = st.selectbox("Status", ["Active", "Lead", "Inactive"])
-            notes = st.text_area("Notes")
-            submitted = st.form_submit_button("Add Client")
-
-            if submitted:
-                if name.strip():
-                    add_client(name, email, phone, status, notes)
-                    st.success("Client added.")
-                    st.rerun()
-                else:
-                    st.warning("Please enter the client's name.")
-
-    clients = read_table("clients")
-
-    if clients.empty:
-        st.info("No clients added yet.")
-    else:
-        st.dataframe(
-            clients[
-                ["name", "email", "phone", "status", "notes"]
-            ],
-            use_container_width=True,
-            hide_index=True,
-        )
-
-
-# -----------------------------
-# Goals
-# -----------------------------
-elif page == "Goals":
-    st.title("Goals")
-
-    with st.expander("➕ Add a goal", expanded=True):
-        with st.form("add_goal_form"):
-            title = st.text_input("Goal")
-            category = st.selectbox(
-                "Category",
-                ["Business", "Fitness", "Financial", "Personal"],
-            )
-            target_date = st.date_input("Target date", value=date.today())
-            progress = st.slider("Current progress", 0, 100, 0)
-            submitted = st.form_submit_button("Add Goal")
-
-            if submitted:
-                if title.strip():
-                    add_goal(
-                        title.strip(),
-                        category,
-                        target_date,
-                        progress,
-                    )
-                    st.success("Goal added.")
-                    st.rerun()
-                else:
-                    st.warning("Please enter a goal.")
-
-    goals = read_table("goals")
-
-    if goals.empty:
-        st.info("No goals added yet.")
-    else:
-        for _, goal in goals.iterrows():
-            st.write(
-                f"**{goal['title']}** · {goal['category']} · "
-                f"Target: {goal['target_date']}"
-            )
-            st.progress(int(goal["progress"]) / 100)
-            st.caption(f"{goal['progress']}% complete")
-
-
-# -----------------------------
-# Message templates
-# -----------------------------
-elif page == "Message Templates":
-    st.title("Message Templates")
-
-    template_type = st.selectbox(
-        "Choose a template",
-        [
-            "New client welcome",
-            "Follow-up after consultation",
-            "Class reminder",
-            "Payment reminder",
-        ],
-    )
-
-    templates = {
-        "New client welcome": (
-            "Hi [Client Name], welcome! I’m excited to work with you. "
-            "I’ll send over the next steps shortly."
-        ),
-        "Follow-up after consultation": (
-            "Hi [Client Name], it was great speaking with you today. "
-            "I wanted to follow up and see if you had any questions."
-        ),
-        "Class reminder": (
-            "Hi [Client Name], this is a reminder about your upcoming class "
-            "on [Date] at [Time]. See you soon!"
-        ),
-        "Payment reminder": (
-            "Hi [Client Name], this is a friendly reminder that your payment "
-            "is due. Please let me know if you have any questions."
-        ),
-    }
-
-    st.text_area(
-        "Template text",
-        value=templates[template_type],
-        height=180,
-    )
-
-    st.caption("Replace the bracketed words before sending.")
+    st.title("Personal + Executive Assistant
