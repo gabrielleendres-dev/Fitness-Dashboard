@@ -3,7 +3,6 @@ import sqlite3
 import hashlib
 from datetime import date, datetime
 
-import pandas as pd
 import streamlit as st
 
 
@@ -20,7 +19,7 @@ st.set_page_config(
 
 
 # =========================================================
-# CUSTOM DESIGN
+# DARK ESPRESSO / BURGUNDY DESIGN
 # =========================================================
 
 st.markdown(
@@ -29,15 +28,21 @@ st.markdown(
     @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
 
     :root {
-        --ivory: #fdfbf8;
-        --paper: #f5f2ef;
-        --espresso: #3d3935;
-        --taupe: #8f8177;
-        --clay: #b8a89c;
-        --rose: #d9b9b8;
-        --sage: #aab5a2;
-        --line: #ded7d1;
-        --white: #ffffff;
+        --background: #211719;
+        --background-deep: #160f11;
+        --sidebar: #2b1c1d;
+        --surface: #382526;
+        --surface-light: #493133;
+        --surface-soft: #302021;
+        --border: #68484a;
+        --espresso: #f7eee5;
+        --cream: #f4e4d3;
+        --pink: #e7b8b7;
+        --rose: #d89198;
+        --muted: #c9aead;
+        --gold: #d8b27c;
+        --sage: #b7c8ae;
+        --danger: #e6a2a2;
     }
 
     html, body, [class*="css"] {
@@ -46,21 +51,32 @@ st.markdown(
     }
 
     .stApp {
-        background-color: var(--ivory);
+        background: var(--background) !important;
+        color: var(--espresso) !important;
+    }
+
+    [data-testid="stAppViewContainer"],
+    [data-testid="stMain"],
+    [data-testid="stHeader"] {
+        background: var(--background) !important;
+    }
+
+    [data-testid="stHeader"] {
+        background: var(--background-deep) !important;
     }
 
     section[data-testid="stSidebar"] {
-        background-color: var(--paper);
-        border-right: 1px solid var(--line);
+        background: var(--sidebar) !important;
+        border-right: 1px solid var(--border);
     }
 
     section[data-testid="stSidebar"] * {
-        color: var(--espresso);
+        color: var(--espresso) !important;
     }
 
     h1, h2, h3, h4 {
+        color: var(--cream) !important;
         font-family: 'Cormorant Garamond', serif !important;
-        color: var(--espresso) !important;
         font-weight: 600 !important;
     }
 
@@ -78,19 +94,19 @@ st.markdown(
     }
 
     p, label, span, div {
-        letter-spacing: 0.01em;
+        color: var(--espresso);
     }
 
     .brand {
+        color: var(--cream);
         font-family: 'Cormorant Garamond', serif;
-        font-size: 2.1rem;
+        font-size: 2.3rem;
         font-weight: 600;
         letter-spacing: 0.04em;
-        margin-bottom: 0;
     }
 
     .eyebrow {
-        color: var(--taupe);
+        color: var(--pink) !important;
         font-size: 0.68rem;
         font-weight: 700;
         letter-spacing: 0.18em;
@@ -98,41 +114,44 @@ st.markdown(
     }
 
     .subtitle {
-        color: var(--taupe);
+        color: var(--muted) !important;
         font-size: 0.9rem;
         margin-top: -18px;
     }
 
     .hero {
-        background: var(--paper);
-        border: 1px solid var(--line);
-        padding: 34px;
+        background: linear-gradient(135deg, #45292c, #321f22);
+        border: 1px solid var(--border);
+        padding: 36px;
         margin-bottom: 28px;
+        box-shadow: 0 14px 35px rgba(0, 0, 0, 0.18);
     }
 
     .hero-title {
+        color: var(--cream);
         font-family: 'Cormorant Garamond', serif;
-        font-size: 3.4rem;
+        font-size: 3.5rem;
         line-height: 1;
-        margin: 8px 0 12px 0;
+        margin: 10px 0 14px 0;
     }
 
     .hero-copy {
-        color: var(--taupe);
-        font-size: 0.9rem;
-        max-width: 680px;
+        color: var(--muted) !important;
+        font-size: 0.92rem;
         line-height: 1.8;
+        max-width: 720px;
     }
 
     .metric-card {
-        background: var(--white);
-        border: 1px solid var(--line);
+        background: var(--surface);
+        border: 1px solid var(--border);
         padding: 22px;
         min-height: 125px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
     }
 
     .metric-label {
-        color: var(--taupe);
+        color: var(--pink) !important;
         font-size: 0.68rem;
         font-weight: 700;
         letter-spacing: 0.14em;
@@ -140,34 +159,37 @@ st.markdown(
     }
 
     .metric-value {
+        color: var(--cream) !important;
         font-family: 'Cormorant Garamond', serif;
-        font-size: 2.8rem;
+        font-size: 2.9rem;
         line-height: 1;
-        margin-top: 13px;
+        margin-top: 14px;
     }
 
     .card {
-        background: var(--white);
-        border: 1px solid var(--line);
+        background: var(--surface);
+        border: 1px solid var(--border);
         padding: 22px;
         margin: 10px 0;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     }
 
     .card-title {
+        color: var(--cream) !important;
         font-family: 'Cormorant Garamond', serif;
-        font-size: 1.55rem;
+        font-size: 1.65rem;
         font-weight: 600;
     }
 
     .card-meta {
-        color: var(--taupe);
+        color: var(--muted) !important;
         font-size: 0.78rem;
-        line-height: 1.7;
+        line-height: 1.8;
     }
 
     .status-pill {
         display: inline-block;
-        padding: 5px 9px;
+        padding: 6px 10px;
         font-size: 0.62rem;
         font-weight: 700;
         letter-spacing: 0.08em;
@@ -175,25 +197,25 @@ st.markdown(
     }
 
     .status-not-started {
-        background: #eee9e4;
-        color: #70665f;
+        background: #59494a;
+        color: #f4e4d3 !important;
     }
 
     .status-in-progress {
-        background: #e7d9cd;
-        color: #715b4f;
+        background: #80565d;
+        color: #ffe9df !important;
     }
 
     .status-done {
-        background: #dce5d9;
-        color: #52624d;
+        background: #536451;
+        color: #edf4e7 !important;
     }
 
     .stButton > button {
-        background: var(--espresso);
-        border: 1px solid var(--espresso);
-        border-radius: 0;
-        color: white;
+        background: var(--rose) !important;
+        border: 1px solid var(--rose) !important;
+        border-radius: 0 !important;
+        color: #241719 !important;
         font-size: 0.7rem;
         font-weight: 700;
         letter-spacing: 0.1em;
@@ -202,24 +224,63 @@ st.markdown(
     }
 
     .stButton > button:hover {
-        background: var(--clay);
-        border-color: var(--clay);
-        color: var(--espresso);
+        background: var(--cream) !important;
+        border-color: var(--cream) !important;
+        color: #241719 !important;
     }
 
-    div[data-testid="stForm"] {
-        background: var(--paper);
-        border: 1px solid var(--line);
-        padding: 20px;
+    div[data-testid="stForm"],
+    [data-testid="stExpander"] {
+        background: var(--surface-soft) !important;
+        border: 1px solid var(--border) !important;
     }
 
-    input, textarea, select {
+    [data-testid="stExpander"] summary,
+    [data-testid="stExpander"] summary p {
+        color: var(--cream) !important;
+    }
+
+    input, textarea, select,
+    div[data-baseweb="input"],
+    div[data-baseweb="select"],
+    div[data-baseweb="textarea"] {
+        background-color: #241719 !important;
+        color: var(--cream) !important;
+        border-color: var(--border) !important;
         border-radius: 0 !important;
     }
 
+    input::placeholder,
+    textarea::placeholder {
+        color: #a8898b !important;
+    }
+
+    [data-baseweb="select"] * {
+        color: var(--cream) !important;
+    }
+
+    [data-testid="stMetricValue"],
+    [data-testid="stMetricLabel"] {
+        color: var(--cream) !important;
+    }
+
+    [data-testid="stAlert"] {
+        background: var(--surface-light) !important;
+        color: var(--cream) !important;
+        border: 1px solid var(--border) !important;
+    }
+
+    .stProgress > div > div > div {
+        background-color: var(--rose) !important;
+    }
+
+    hr {
+        border-color: var(--border) !important;
+    }
+
     .footer {
-        border-top: 1px solid var(--line);
-        color: var(--taupe);
+        border-top: 1px solid var(--border);
+        color: var(--muted) !important;
         font-size: 0.68rem;
         letter-spacing: 0.12em;
         margin-top: 50px;
@@ -227,7 +288,6 @@ st.markdown(
         text-align: center;
         text-transform: uppercase;
     }
-
     </style>
     """,
     unsafe_allow_html=True,
@@ -317,28 +377,27 @@ def initialize_database():
         """
     )
 
-    # Safely upgrade older task databases.
     cursor.execute("PRAGMA table_info(tasks)")
-    task_columns = [row["name"] for row in cursor.fetchall()]
+    columns = [row["name"] for row in cursor.fetchall()]
 
-    if "status" not in task_columns:
+    if "status" not in columns:
         cursor.execute(
             "ALTER TABLE tasks ADD COLUMN status TEXT DEFAULT 'Not Started'"
         )
 
-    if "priority" not in task_columns:
+    if "priority" not in columns:
         cursor.execute(
             "ALTER TABLE tasks ADD COLUMN priority TEXT DEFAULT 'Medium'"
         )
 
-    if "due_date" not in task_columns:
-        cursor.execute(
-            "ALTER TABLE tasks ADD COLUMN due_date TEXT"
-        )
-
-    if "description" not in task_columns:
+    if "description" not in columns:
         cursor.execute(
             "ALTER TABLE tasks ADD COLUMN description TEXT"
+        )
+
+    if "due_date" not in columns:
+        cursor.execute(
+            "ALTER TABLE tasks ADD COLUMN due_date TEXT"
         )
 
     connection.commit()
@@ -351,9 +410,9 @@ def query_database(query, parameters=(), fetch=False):
     cursor.execute(query, parameters)
 
     if fetch:
-        results = cursor.fetchall()
+        result = cursor.fetchall()
         connection.close()
-        return results
+        return result
 
     connection.commit()
     connection.close()
@@ -368,18 +427,12 @@ initialize_database()
 # =========================================================
 
 def get_app_password():
-    """
-    The preferred password is configured in Streamlit Cloud Secrets
-    under the name APP_PASSWORD.
-
-    A local environment variable with the same name also works.
-    """
     try:
-        secret_password = st.secrets.get("APP_PASSWORD", "")
+        secret = st.secrets.get("APP_PASSWORD", "")
     except Exception:
-        secret_password = ""
+        secret = ""
 
-    return secret_password or os.environ.get("APP_PASSWORD", "")
+    return secret or os.environ.get("APP_PASSWORD", "")
 
 
 def check_password():
@@ -403,14 +456,13 @@ def check_password():
 
     if not configured_password:
         st.warning(
-            "No APP_PASSWORD has been configured yet. "
-            "Add it in Streamlit Community Cloud under "
-            "your app's Settings → Secrets."
+            "APP_PASSWORD is not configured. Add it in Streamlit Cloud under "
+            "Settings → Secrets."
         )
         return False
 
     with st.form("login_form"):
-        entered_password = st.text_input(
+        password = st.text_input(
             "Password",
             type="password",
             placeholder="Enter your private password",
@@ -419,14 +471,14 @@ def check_password():
 
         if submitted:
             entered_hash = hashlib.sha256(
-                entered_password.encode("utf-8")
+                password.encode("utf-8")
             ).hexdigest()
 
-            configured_hash = hashlib.sha256(
+            correct_hash = hashlib.sha256(
                 configured_password.encode("utf-8")
             ).hexdigest()
 
-            if entered_hash == configured_hash:
+            if entered_hash == correct_hash:
                 st.session_state.authenticated = True
                 st.rerun()
             else:
@@ -440,66 +492,51 @@ if not check_password():
 
 
 # =========================================================
-# HELPER FUNCTIONS
+# HELPERS
 # =========================================================
 
-def format_date(date_value):
-    if not date_value:
+def format_date(value):
+    if not value:
         return "No date"
 
     try:
         return datetime.strptime(
-            str(date_value), "%Y-%m-%d"
+            str(value), "%Y-%m-%d"
         ).strftime("%B %d, %Y")
     except ValueError:
-        return str(date_value)
+        return str(value)
 
 
-def status_class(status):
-    return status.lower().replace(" ", "-")
+def status_class(value):
+    return str(value).lower().replace(" ", "-")
 
 
-def get_count(table_name):
-    allowed_tables = {
-        "tasks",
-        "clients",
-        "goals",
-        "events",
-        "templates",
-    }
+def count_records(table):
+    allowed = {"tasks", "clients", "goals", "events", "templates"}
 
-    if table_name not in allowed_tables:
+    if table not in allowed:
         return 0
 
     result = query_database(
-        f"SELECT COUNT(*) AS count FROM {table_name}",
+        f"SELECT COUNT(*) AS count FROM {table}",
         fetch=True,
     )
 
     return result[0]["count"]
 
 
-def delete_record(table_name, record_id):
-    allowed_tables = {
-        "tasks",
-        "clients",
-        "goals",
-        "events",
-        "templates",
-    }
+def delete_record(table, record_id):
+    allowed = {"tasks", "clients", "goals", "events", "templates"}
 
-    if table_name not in allowed_tables:
-        return
-
-    query_database(
-        f"DELETE FROM {table_name} WHERE id = ?",
-        (record_id,),
-    )
+    if table in allowed:
+        query_database(
+            f"DELETE FROM {table} WHERE id = ?",
+            (record_id,),
+        )
 
 
-def display_task_card(task):
-    status = task["status"] or "Not Started"
-    priority = task["priority"] or "Medium"
+def task_card(task):
+    current_status = task["status"] or "Not Started"
 
     st.markdown(
         f"""
@@ -507,10 +544,10 @@ def display_task_card(task):
             <div class="card-title">{task["title"]}</div>
             <div class="card-meta">
                 {task["description"] or "No description provided"}<br>
-                Priority: {priority}<br>
+                Priority: {task["priority"] or "Medium"}<br>
                 Due: {format_date(task["due_date"])}<br><br>
-                <span class="status-pill status-{status_class(status)}">
-                    {status}
+                <span class="status-pill status-{status_class(current_status)}">
+                    {current_status}
                 </span>
             </div>
         </div>
@@ -572,17 +609,17 @@ def show_overview():
         unsafe_allow_html=True,
     )
 
-    metric_columns = st.columns(5)
+    columns = st.columns(5)
 
     metrics = [
-        ("Open tasks", get_count("tasks")),
-        ("Clients", get_count("clients")),
-        ("Goals", get_count("goals")),
-        ("Events", get_count("events")),
-        ("Templates", get_count("templates")),
+        ("Open tasks", count_records("tasks")),
+        ("Clients", count_records("clients")),
+        ("Goals", count_records("goals")),
+        ("Events", count_records("events")),
+        ("Templates", count_records("templates")),
     ]
 
-    for column, (label, value) in zip(metric_columns, metrics):
+    for column, (label, value) in zip(columns, metrics):
         with column:
             st.markdown(
                 f"""
@@ -612,7 +649,7 @@ def show_overview():
         st.info("No tasks have been added yet.")
     else:
         for task in tasks:
-            display_task_card(task)
+            task_card(task)
 
     st.markdown(
         '<div class="footer">Studio Sanctuary · Personal executive workspace</div>',
@@ -632,8 +669,8 @@ def show_tasks():
         unsafe_allow_html=True,
     )
 
-    with st.expander("＋ Add a new task", expanded=False):
-        with st.form("add_task_form"):
+    with st.expander("＋ Add a new task"):
+        with st.form("task_form"):
             title = st.text_input("Task title")
             description = st.text_area("Description")
             priority = st.selectbox(
@@ -668,24 +705,22 @@ def show_tasks():
                     st.success("Task saved.")
                     st.rerun()
 
-    st.markdown("### Task list")
+    filters = st.columns(3)
 
-    filter_columns = st.columns(3)
-
-    with filter_columns[0]:
+    with filters[0]:
         status_filter = st.selectbox(
             "Filter by status",
             ["All", "Not Started", "In Progress", "Done"],
         )
 
-    with filter_columns[1]:
+    with filters[1]:
         priority_filter = st.selectbox(
             "Filter by priority",
             ["All", "Low", "Medium", "High", "Urgent"],
         )
 
-    with filter_columns[2]:
-        search = st.text_input("Search", placeholder="Search task titles")
+    with filters[2]:
+        search = st.text_input("Search tasks")
 
     query = "SELECT * FROM tasks WHERE 1 = 1"
     parameters = []
@@ -700,8 +735,8 @@ def show_tasks():
 
     if search.strip():
         query += " AND (title LIKE ? OR description LIKE ?)"
-        search_value = f"%{search.strip()}%"
-        parameters.extend([search_value, search_value])
+        value = f"%{search.strip()}%"
+        parameters.extend([value, value])
 
     query += """
         ORDER BY
@@ -716,12 +751,12 @@ def show_tasks():
         st.info("No tasks match your filters.")
     else:
         for task in tasks:
-            columns = st.columns([5, 1])
+            left, right = st.columns([5, 1])
 
-            with columns[0]:
-                display_task_card(task)
+            with left:
+                task_card(task)
 
-            with columns[1]:
+            with right:
                 st.write("")
                 st.write("")
                 if st.button("Delete", key=f"delete_task_{task['id']}"):
@@ -741,11 +776,11 @@ def show_calendar():
         unsafe_allow_html=True,
     )
 
-    with st.expander("＋ Add calendar event", expanded=False):
-        with st.form("add_event_form"):
+    with st.expander("＋ Add calendar event"):
+        with st.form("event_form"):
             title = st.text_input("Event title")
             event_date = st.date_input("Date", value=date.today())
-            event_time = st.text_input("Time", placeholder="Example: 10:30 AM")
+            event_time = st.text_input("Time")
             category = st.selectbox(
                 "Category",
                 ["Work", "Personal", "Client", "Health", "Other"],
@@ -786,9 +821,9 @@ def show_calendar():
         st.info("No calendar events have been added yet.")
     else:
         for event in events:
-            columns = st.columns([5, 1])
+            left, right = st.columns([5, 1])
 
-            with columns[0]:
+            with left:
                 st.markdown(
                     f"""
                     <div class="card">
@@ -804,7 +839,7 @@ def show_calendar():
                     unsafe_allow_html=True,
                 )
 
-            with columns[1]:
+            with right:
                 st.write("")
                 st.write("")
                 if st.button("Delete", key=f"delete_event_{event['id']}"):
@@ -824,8 +859,8 @@ def show_clients():
         unsafe_allow_html=True,
     )
 
-    with st.expander("＋ Add client", expanded=False):
-        with st.form("add_client_form"):
+    with st.expander("＋ Add client"):
+        with st.form("client_form"):
             name = st.text_input("Client name")
             email = st.text_input("Email")
             phone = st.text_input("Phone")
@@ -861,9 +896,9 @@ def show_clients():
         st.info("No clients have been added yet.")
     else:
         for client in clients:
-            columns = st.columns([5, 1])
+            left, right = st.columns([5, 1])
 
-            with columns[0]:
+            with left:
                 st.markdown(
                     f"""
                     <div class="card">
@@ -878,7 +913,7 @@ def show_clients():
                     unsafe_allow_html=True,
                 )
 
-            with columns[1]:
+            with right:
                 st.write("")
                 st.write("")
                 if st.button("Delete", key=f"delete_client_{client['id']}"):
@@ -898,8 +933,8 @@ def show_goals():
         unsafe_allow_html=True,
     )
 
-    with st.expander("＋ Add goal", expanded=False):
-        with st.form("add_goal_form"):
+    with st.expander("＋ Add goal"):
+        with st.form("goal_form"):
             title = st.text_input("Goal title")
             description = st.text_area("Description")
             target_date = st.date_input("Target date", value=None)
@@ -920,8 +955,7 @@ def show_goals():
                             title.strip(),
                             description.strip(),
                             target_date.isoformat()
-                            if target_date
-                            else None,
+                            if target_date else None,
                             progress,
                         ),
                     )
@@ -937,9 +971,9 @@ def show_goals():
         st.info("No goals have been added yet.")
     else:
         for goal in goals:
-            columns = st.columns([5, 1])
+            left, right = st.columns([5, 1])
 
-            with columns[0]:
+            with left:
                 st.markdown(
                     f"""
                     <div class="card">
@@ -955,7 +989,7 @@ def show_goals():
                 )
                 st.progress(int(goal["progress"]) / 100)
 
-            with columns[1]:
+            with right:
                 st.write("")
                 st.write("")
                 if st.button("Delete", key=f"delete_goal_{goal['id']}"):
@@ -975,8 +1009,8 @@ def show_templates():
         unsafe_allow_html=True,
     )
 
-    with st.expander("＋ Add message template", expanded=False):
-        with st.form("add_template_form"):
+    with st.expander("＋ Add message template"):
+        with st.form("template_form"):
             title = st.text_input("Template title")
             category = st.selectbox(
                 "Category",
@@ -1013,9 +1047,9 @@ def show_templates():
         st.info("No message templates have been added yet.")
     else:
         for template in templates:
-            columns = st.columns([5, 1])
+            left, right = st.columns([5, 1])
 
-            with columns[0]:
+            with left:
                 st.markdown(
                     f"""
                     <div class="card">
@@ -1024,13 +1058,15 @@ def show_templates():
                             Category: {template["category"] or "Other"}
                         </div>
                         <br>
-                        <div>{template["body"]}</div>
+                        <div style="color:#f4e4d3;">
+                            {template["body"]}
+                        </div>
                     </div>
                     """,
                     unsafe_allow_html=True,
                 )
 
-            with columns[1]:
+            with right:
                 st.write("")
                 st.write("")
                 if st.button(
