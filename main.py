@@ -24,7 +24,7 @@ def check_password():
     if st.session_state.get("authenticated", False):
         return True
 
-   st.sidebar.title("💪 My Executive Assistant")
+   st.sidebar.title("💪 My Assistant")
 
 if st.sidebar.button("Lock Dashboard"):
     st.session_state.authenticated = False
