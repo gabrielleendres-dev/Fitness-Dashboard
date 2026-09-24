@@ -16,6 +16,48 @@ st.set_page_config(
 
 
 # -----------------------------
+# Private passcode protection
+# -----------------------------
+def check_password():
+    """Require the password before displaying the private dashboard."""
+
+    if st.session_state.get("authenticated", False):
+        return True
+
+    st.title("💪 Personal Executive Assistant")
+    st.subheader("Private dashboard")
+
+    password = st.text_input(
+        "Enter your passcode",
+        type="password",
+    )
+
+    if st.button("Unlock Dashboard", type="primary"):
+        correct_password = st.secrets.get("APP_PASSWORD")
+
+        if not correct_password:
+            st.error(
+                "The app password has not been configured yet. "
+                "Add APP_PASSWORD in Streamlit Secrets."
+            )
+            return False
+
+        if password == correct_password:
+            st.session_state.authenticated = True
+            st.rerun()
+        else:
+            st.error("Incorrect passcode.")
+
+    st.caption("This dashboard is private. Do not share your passcode.")
+    return False
+
+
+if not check_password():
+    st.stop()
+
+
+
+# -----------------------------
 # Database setup
 # -----------------------------
 DB_NAME = "assistant_dashboard.db"
